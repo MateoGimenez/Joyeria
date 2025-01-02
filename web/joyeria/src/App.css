@@ -1,0 +1,12 @@
+*{
+  margin: 0;
+}
+
+.contenedor-app{
+  max-width: 1020px;
+  background-color: rgb(61, 60, 59);
+}
+
+.encabezado{
+  display: flex;
+}
