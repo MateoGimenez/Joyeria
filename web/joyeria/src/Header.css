@@ -1,0 +1,75 @@
+/* Estilo general del contenedor */
+.contenedor-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #333; /* Fondo oscuro */
+    padding: 10px 20px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); /* Sombra */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  /* Estilo para la lista de navegación */
+  .contenedor-header ul {
+    list-style: none;
+    display: flex;
+    gap: 20px; /* Espaciado entre elementos */
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Estilo para los elementos de la lista */
+  .contenedor-header li {
+    font-size: 18px; /* Tamaño de la fuente */
+  }
+  
+  /* Estilo para los enlaces */
+  .contenedor-header a {
+    text-decoration: none; /* Sin subrayado */
+    color: white; /* Texto blanco */
+    font-weight: bold;
+    padding: 8px 15px; /* Espaciado interno */
+    border-radius: 5px; /* Bordes redondeados */
+    transition: background-color 0.3s, color 0.3s; /* Efectos suaves */
+  }
+  
+  /* Estilo en hover */
+  .contenedor-header a:hover {
+    background-color: #f0a500; /* Fondo amarillo */
+    color: #333; /* Texto oscuro */
+  }
+  
+  /* Botón especial para 'Productos' */
+  .nav-button {
+    background-color: #555; /* Fondo gris oscuro */
+    color: #fff; /* Texto blanco */
+    border: 1px solid #f0a500; /* Borde amarillo */
+  }
+  
+  /* Botón 'Productos' en hover */
+  .nav-button:hover {
+    background-color: #f0a500; /* Fondo amarillo */
+    color: #333; /* Texto oscuro */
+    border: 1px solid #333; /* Borde oscuro */
+  }
+  
+  /* Responsividad para móviles */
+  @media (max-width: 768px) {
+    .contenedor-header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 10px;
+    }
+  
+    .contenedor-header ul {
+      flex-direction: column;
+      gap: 10px; /* Menor espacio entre elementos */
+    }
+  
+    .contenedor-header li {
+      font-size: 16px; /* Reducir el tamaño del texto */
+    }
+  }
+  

@@ -1,12 +1,16 @@
-*{
+/* Estilo global para asegurar que todo ocupe el 100% */
+html, body, #root {
+  height: 100%;
   margin: 0;
+  padding: 0;
 }
 
-.contenedor-app{
-  max-width: 1020px;
-  background-color: rgb(61, 60, 59);
-}
-
-.encabezado{
+/* Estilo del contenedor principal */
+.App {
+  height: 100%;
+  width: 100%;
   display: flex;
+  flex-direction: column;
+  background-color: #f9f9f9; /* Color de fondo claro */
+  font-family: Arial, sans-serif; /* Fuente global */
 }

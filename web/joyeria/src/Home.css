@@ -1,0 +1,12 @@
+.contenedorHome{
+    background-color: rgba(68, 60, 66, 0.993);
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home h1{
+    color: goldenrod;
+}
