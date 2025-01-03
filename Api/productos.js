@@ -14,6 +14,16 @@ ProductosRouter.get('/', async(req,res)=> {
     }
 })
 
+//Obtener las categorias de los productos
+ProductosRouter.get('/categorias', async(req,res)=>{
+    try{
+        const [Categorias] = await db.query('SELECT * FROM categorias')
+        res.status(200).send(Categorias)
+    }catch(error){ 
+        res.status(500).send({mensaje : 'No llegaron las categorias'})
+    }
+})
+
 //Buscar producto por id 
 ProductosRouter.get("/:id" , [validarID , verificarValidaciones ], async(req,res) => {
     const { id } = req.params

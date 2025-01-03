@@ -1,0 +1,75 @@
+/* Estilos para el modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Estilos para el contenedor del modal */
+  .modal {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Título del modal */
+  .modal h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  /* Estilos para el formulario */
+  .modal form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal form input,
+  .modal form select {
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Estilo para los botones */
+  .modal form button {
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+  }
+  
+  .modal form button:hover {
+    background-color: #45a049;
+  }
+  
+  .modal form button:nth-of-type(2) {
+    background-color: #f44336;
+  }
+  
+  .modal form button:nth-of-type(2):hover {
+    background-color: #e53935;
+  }
+  
+  /* Añadir un espacio entre los botones */
+  .modal form button + button {
+    margin-top: 10px;
+  }
+  
