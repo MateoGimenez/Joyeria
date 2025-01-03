@@ -14,6 +14,7 @@ ProductosRouter.get('/', async(req,res)=> {
     }
 })
 
+//Buscar producto por id 
 ProductosRouter.get("/:id" , [validarID , verificarValidaciones ], async(req,res) => {
     const { id } = req.params
     try{
@@ -27,6 +28,7 @@ ProductosRouter.get("/:id" , [validarID , verificarValidaciones ], async(req,res
     }
 })
 
+//Agregar productos
 ProductosRouter.post('/',[validarProducto , verificarValidaciones] ,async(req,res)=> {
     const {nombre , descripcion, precio , id_categoria,cantidad_disponible} = req.body
 
@@ -41,6 +43,7 @@ ProductosRouter.post('/',[validarProducto , verificarValidaciones] ,async(req,re
     }
 })
 
+//Borrar productosd
 ProductosRouter.delete("/:id",[validarID, verificarValidaciones] ,async(req,res)=> {
     const { id } = req.params
     try{
@@ -51,6 +54,7 @@ ProductosRouter.delete("/:id",[validarID, verificarValidaciones] ,async(req,res)
     }
 })
 
+//actualizar productos x id
 ProductosRouter.put('/:id', [validarProducto, validarID, verificarValidaciones], async (req, res) => {
     const { nombre, descripcion, precio, id_categoria, cantidad_disponible } = req.body;
     const { id } = req.params; // Extraemos el id de los parámetros de la URL.

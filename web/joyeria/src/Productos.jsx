@@ -12,16 +12,13 @@ export const Productos = () => {
     try {
       const res = await fetch("http://localhost:3000/productos");
       const data = await res.json();
-      setProductos(data); // Asegúrate de que 'data' es un array de productos
+      setProductos(data); 
     } catch (error) {
       console.error("Error al obtener los productos", error);
     }
   };
 
   const eliminarProducto = (id) => {
-    // Aquí puedes agregar la lógica para eliminar un producto, por ejemplo llamando a un endpoint
-    // Ejemplo de eliminación:
-    setProductos(productos.filter(producto => producto.id_producto !== id));
     console.log(`Producto con id ${id} eliminado`);
   };
 
@@ -32,6 +29,15 @@ export const Productos = () => {
 
   return (
     <div className="productos-contenedor">
+      <div className="acciones">
+        <div className="contenedor-buscar">
+          <input placeholder="Buscar" className="inputbuscar" />
+          <button className="buscar">Buscar</button>
+        </div>
+        <div className="contenedor-agregar">
+          <button className="agregar">Agregar</button>
+        </div>
+      </div>
       <table>
         <thead>
           <tr>
@@ -51,8 +57,8 @@ export const Productos = () => {
                 <td>{producto.precio}</td>
                 <td>{producto.cantidad_disponible}</td>
                 <td>
-                  <button onClick={() => editarProducto(producto.id_producto)}>Editar</button>
-                  <button onClick={() => eliminarProducto(producto.id_producto)}>Eliminar</button>
+                  <button onClick={() => editarProducto(producto.id_producto)}>✏️</button>
+                  <button onClick={() => eliminarProducto(producto.id_producto)}>🗑️</button>
                 </td>
               </tr>
             ))
