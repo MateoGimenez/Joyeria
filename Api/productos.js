@@ -45,7 +45,7 @@ ProductosRouter.post('/',[validarProducto , verificarValidaciones] ,async(req,re
     const fecha_agregado = new Date()
 
     try{
-        const [NuevoProducto] = await db.query('INSERT INTO productosa (nombre , descripcion, precio , id_categoria,cantidad_disponible,fecha_agregado) VALUES(? , ? , ? , ? , ? , ?)', [nombre , descripcion, precio , id_categoria,cantidad_disponible,fecha_agregado])
+        const [NuevoProducto] = await db.query('INSERT INTO productos (nombre , descripcion, precio , id_categoria,cantidad_disponible,fecha_agregado) VALUES(? , ? , ? , ? , ? , ?)', [nombre , descripcion, precio , id_categoria,cantidad_disponible,fecha_agregado])
 
         res.status(200).send({mensaje : 'Nuevo producto agregado' , NuevoProducto})
     }catch(error){

@@ -19,11 +19,11 @@ export const validarProducto = [
     .isString().withMessage('La descripcion solo puede ser texto'),
     body('precio')
     .notEmpty().withMessage('El precio no puede estar vacio')
-    .isFloat({gt:0}).withMessage('El precio debe ser positivo'),
+    .isInt({gt:0}).withMessage('El precio debe ser positivo'),
     body('id_categoria')
     .notEmpty().withMessage('debe tener alguna categoria')
-    .isFloat({gt:0}).withMessage('Debe ser numero positvo'),
+    .isInt({gt:0}).withMessage('Debe ser numero positvo'),
     body('cantidad_disponible')
     .notEmpty().withMessage('Debe asignar alguna cantidad')
-    .isFloat({gt:0}).withMessage('Debe ser numero positvo')
+    .isInt({gt:0}).withMessage('Debe ser numero positvo')
 ]
