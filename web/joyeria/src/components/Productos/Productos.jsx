@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { ObtenerCategorias } from "./services/ServicesProducts";
 import { AgregarProductos } from "./services/ServicesProducts";
 import { ObtenerProductos } from "./services/ServicesProducts";
+import { Modal } from "../Modal/Modal";
 import "./Productos.css"
 import "../Modal/ModalProductos.css"
 
 export const Productos = () => {
   const [productos, setProductos] = useState([]);
-  const [categorias , setCategorias] = useState([])
   const [isModalOpen , setIsModalOpen] = useState(false)
   const [newProducto , setNewProducto] = useState({
     nombre : '', 
@@ -20,7 +19,6 @@ export const Productos = () => {
 
   useEffect(() => {
     fetchProductos()
-    fetchCategorias()
   }, []);
 
   const fetchProductos = async() => {
@@ -28,10 +26,6 @@ export const Productos = () => {
     setProductos(data)
   }
 
-  const fetchCategorias = async() => {
-    const data = await ObtenerCategorias()
-    setCategorias(data)
-  }
 
 
   const eliminarProducto = (id) => {
@@ -87,7 +81,7 @@ export const Productos = () => {
     AgregarProductos(ProductoValido)
       .then(() => {
         toggleModal();
-        getProductos();
+        fetchProductos();
       })
       .catch((error) => {
         console.error("Error al agregar producto", error);
@@ -138,34 +132,14 @@ export const Productos = () => {
           )}
         </tbody>
       </table>
-
-      {isModalOpen &&(
-        <div className="modal-overlay" >
-          <div className="modal" onClick={(e)=>e.stopPropagation()}>
-            <form onSubmit={(e)=> e.preventDefault()}>
-              <h2>Agregar Producto</h2>
-              <input type="text" name='nombre'placeholder="Nombre del Producto" value={newProducto.nombre} onChange={ObtenerDatosProducto} />
-              <input type="text" name="descripcion" placeholder="Descripcion (Opcional)" value={newProducto.descripcion} onChange={ObtenerDatosProducto} />
-              <input type="Number" name="precio" placeholder="Precio" value={newProducto.precio} onChange={ObtenerDatosProducto} />
-
-              <select name='id_categoria'value={newProducto.id_categoria} onChange={ObtenerDatosProducto}>
-                <option>Elige una categoria</option>
-                {categorias.length > 0 ? (
-                  categorias.map((cat) => {
-                    return (
-                      <option key={cat.id_categoria} value={cat.id_categoria}>{cat.nombre_categoria}</option>
-                    );
-                  })
-                ) : (<option disabled>Cargando categorias....</option>)}
-              </select>
-
-              <input type="Number" name="cantidad_disponible" placeholder="Cantidad " value={newProducto.cantidad_disponible} onChange={ObtenerDatosProducto}/>
-              <button onClick={EnviarForm}>Guardar</button>
-              <button onClick={toggleModal}>Cerrar</button>
-            </form>
-          </div>
-        </div>
-      )}
+      
+      <Modal 
+        isModalOpen={isModalOpen}
+        toggleModal={toggleModal}
+        newProducto={newProducto}
+        ObtenerDatosProducto={ObtenerDatosProducto}
+        EnviarForm={EnviarForm}
+      />
     </div>
   );
 };
