@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { AgregarProductos } from "./services/ServicesProducts";
 import { ObtenerProductos } from "./services/ServicesProducts";
+import { EliminarProductos } from "./services/ServicesProducts";
+import { ActualizarProducto } from "./services/ServicesProducts";
 import { Modal } from "../Modal/Modal";
+import { validarFormulario } from "../Modal/validaciones";
 import "./Productos.css"
 import "../Modal/ModalProductos.css"
 
@@ -15,6 +18,8 @@ export const Productos = () => {
     id_categoria:'',
     cantidad_disponible: ''
   });
+  const [productoEditando, setProductoEditando] = useState(null);
+
   
 
   useEffect(() => {
@@ -28,43 +33,65 @@ export const Productos = () => {
 
 
 
-  const eliminarProducto = (id) => {
-    console.log('Producto con id ${id} eliminado');
+  const fetcEliminarProducto = async (id) => {
+    const confirmar = window.confirm("¿Deseas eliminar el producto?");
+    if (!confirmar) return;
+  
+    try {
+      await EliminarProductos(id); 
+      setProductos((prevProductos) => prevProductos.filter((id) => id.id_producto !== id));
+      fetchProductos()
+    } catch (error) {
+      console.error("Error al eliminar el producto:", error);
+      alert("Hubo un problema al intentar eliminar el producto.");
+    }
   };
+  
+  
+    
+const editarProducto = (id) => {
+    const productoAEditar = productos.find(producto => producto.id_producto === id);
+  
+    if (productoAEditar) {
+      setProductoEditando(productoAEditar); // Asigna el producto al estado de edición
+      setNewProducto({
+        id_producto: productoAEditar.id_producto,
+        nombre: productoAEditar.nombre,
+        descripcion: productoAEditar.descripcion,
+        precio: productoAEditar.precio,
+        id_categoria: productoAEditar.id_categoria,
+        cantidad_disponible: productoAEditar.cantidad_disponible
+      });
+      toggleModal(); // Abre el modal con los datos del producto
+    }
+  };
+  
 
-  const editarProducto = (id) => {
-    // Aquí puedes agregar la lógica para editar un producto, redirigiendo a una página de edición o abriendo un modal
-    console.log('Producto con id ${id} para editar');
-  };
+    
 
   const toggleModal = () => {
-    setIsModalOpen(!isModalOpen)
-    setNewProducto({ nombre : '', descripcion: '',precio : '',id_categoria:'',cantidad_disponible: ''})
-  }
+    setIsModalOpen(!isModalOpen);
+    if (isModalOpen) {
+      // Solo resetea cuando se cierra el modal, no cuando se abre
+      setProductoEditando(null);
+      setNewProducto({
+        nombre: '',
+        descripcion: '',
+        precio: '',
+        id_categoria: '',
+        cantidad_disponible: ''
+      });
+    }
+  };
+  
 
   const ObtenerDatosProducto = (e) => {
     const {name , value} = e.target
     setNewProducto((prevProducto)=>({...prevProducto,[name]:value,}))
   }
-
-  const validarFormulario = () => {
-    if (!newProducto.nombre.trim()) {
-      alert("El nombre es obligatorio");
-      return false;
-    }
-    if (isNaN(newProducto.precio) || newProducto.precio <= 0) {
-      alert("El precio debe ser un número positivo");
-      return false;
-    }
-    if (!newProducto.id_categoria) {
-      alert("Selecciona una categoría válida");
-      return false;
-    }
-    return true;
-  };
   
   const EnviarForm = () => {
-    if (!validarFormulario()) return;
+    if (!validarFormulario(newProducto)) return;
   
     const ProductoValido = {
       ...newProducto,
@@ -73,21 +100,37 @@ export const Productos = () => {
       cantidad_disponible: Number(newProducto.cantidad_disponible),
     };
   
-    if (productos.find((producto) => producto.nombre === ProductoValido.nombre)) {
+    if (productos.find((producto) => producto.nombre === ProductoValido.nombre && producto.id_producto !== ProductoValido.id_producto)) {
       alert("El producto que deseas agregar ya existe");
       return;
     }
   
-    AgregarProductos(ProductoValido)
-      .then(() => {
-        toggleModal();
-        fetchProductos();
-      })
-      .catch((error) => {
-        console.error("Error al agregar producto", error);
-        alert("Hubo un problema al querer agregar el producto");
-      });
+    if (productoEditando) {
+      // Si productoEditando no es null, estamos actualizando el producto
+      ActualizarProducto(ProductoValido)
+        .then(() => {
+          toggleModal();
+          setProductoEditando(null); // Resetea el estado de edición
+          fetchProductos(); // Refresca la lista de productos
+        })
+        .catch((error) => {
+          console.error("Error al actualizar producto", error);
+          alert("Hubo un problema al querer actualizar el producto");
+        });
+    } else {
+      // Si productoEditando es null, es un nuevo producto
+      AgregarProductos(ProductoValido)
+        .then(() => {
+          toggleModal();
+          fetchProductos();
+        })
+        .catch((error) => {
+          console.error("Error al agregar producto", error);
+          alert("Hubo un problema al querer agregar el producto");
+        });
+    }
   };
+  
   
 
   return (
@@ -121,7 +164,7 @@ export const Productos = () => {
                 <td>{producto.cantidad_disponible}</td>
                 <td>
                   <button onClick={() => editarProducto(producto.id_producto)}>✏️</button>
-                  <button onClick={() => eliminarProducto(producto.id_producto)}>🗑️</button>
+                  <button onClick={() => fetcEliminarProducto(producto.id_producto)}>🗑️</button>
                 </td>
               </tr>
             ))

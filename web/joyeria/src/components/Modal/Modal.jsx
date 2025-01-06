@@ -29,7 +29,7 @@ export const Modal = ({ isModalOpen, toggleModal, newProducto, ObtenerDatosProdu
 
           <select name="id_categoria"value={newProducto.id_categoria}onChange={ObtenerDatosProducto}>
 
-            <option>Elige una categoría</option>
+            <option value={''}>Elige una categoría</option>
             {categoriasList.length > 0 ? (
               categoriasList.map((cat) => (
                 <option key={cat.id_categoria} value={cat.id_categoria}>

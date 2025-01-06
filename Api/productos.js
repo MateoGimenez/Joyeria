@@ -54,15 +54,16 @@ ProductosRouter.post('/',[validarProducto , verificarValidaciones] ,async(req,re
 })
 
 //Borrar productosd
-ProductosRouter.delete("/:id",[validarID, verificarValidaciones] ,async(req,res)=> {
-    const { id } = req.params
-    try{
-        await db.query('DELETE FROM productos WHERE id_producto = ? ' , [id])
-        res.status(200).send({mensaje : "Se borro el Producto con el id "  [id]})
-    }catch(error){
-        res.status(500).send({mensaje : 'Error en elminar productos'})
+ProductosRouter.delete("/:id", [validarID, verificarValidaciones], async (req, res) => {
+    const { id } = req.params;
+    try {
+        await db.query('DELETE FROM productos WHERE id_producto = ? ', [id]);
+        res.status(200).send({ mensaje: `Se borró el Producto con el id ${id}` });
+    } catch (error) {
+        res.status(500).send({ mensaje: 'Error en eliminar productos' });
     }
-})
+});
+
 
 //actualizar productos x id
 ProductosRouter.put('/:id', [validarProducto, validarID, verificarValidaciones], async (req, res) => {
