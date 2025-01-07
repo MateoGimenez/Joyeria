@@ -54,7 +54,7 @@ export const EliminarProductos = async (id_producto) => {
     }
   };
   
-  export const ActualizarProducto = async (producto) => {
+export const ActualizarProducto = async (producto) => {
     try {
       const res = await fetch(`http://localhost:3000/productos/${producto.id_producto}`, {
         method: "PUT",
