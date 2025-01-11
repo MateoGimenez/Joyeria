@@ -149,10 +149,7 @@ export const Productos = () => {
 
   const productosFiltrados = productos.filter((producto) => {
     const coincideBusqueda = producto.nombre.toLowerCase().includes(busqueda);
-    const coincideCategoria =
-      filtroCategoria === "" ||
-      producto.id_categoria === parseInt(filtroCategoria);
-
+    const coincideCategoria = filtroCategoria === "" || producto.id_categoria === parseInt(filtroCategoria); 
     return coincideBusqueda && coincideCategoria;
   });
 
@@ -205,7 +202,7 @@ export const Productos = () => {
               <tr key={producto.id_producto}>
                 <td>{producto.nombre}</td>
                 <td>{producto.descripcion}</td>
-                <td>{producto.precio}</td>
+                <td>${producto.precio}</td>
                 <td>{producto.cantidad_disponible}</td>
                 <td>
                   <button
