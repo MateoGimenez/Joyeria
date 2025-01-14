@@ -1,18 +1,26 @@
 import express from 'express'
 import {db} from './db.js'
 import { validarID , validarProducto, verificarValidaciones } from './validaciones.js'
+import { upload } from './upload.js'
 
 export const ProductosRouter = express.Router()
 
 // Traer todos los productos 
-ProductosRouter.get('/', async(req,res)=> {
-    try{
-        const [Productos] = await db.query('SELECT * FROM productos')
-        res.status(200).send(Productos)
-    }catch(error){
-        res.status(500).send({mensaje : 'No llegaron los productos'})
+ProductosRouter.get('/', async (req, res) => {
+    try {
+        const [Productos] = await db.query('SELECT * FROM productos');
+        const productosConImagenes = Productos.map((producto) => ({
+            ...producto,
+            imagen: producto.imagen
+                ? `http://localhost:3000${producto.imagen}` // Ruta completa
+                : null,
+        }));
+        res.status(200).send(productosConImagenes);
+    } catch (error) {
+        res.status(500).send({ mensaje: 'No llegaron los productos' });
     }
-})
+});
+
 
 //Obtener las categorias de los productos
 ProductosRouter.get('/categorias', async(req,res)=>{
@@ -39,19 +47,38 @@ ProductosRouter.get("/:id" , [validarID , verificarValidaciones ], async(req,res
 })
 
 //Agregar productos
-ProductosRouter.post('/',[validarProducto , verificarValidaciones] ,async(req,res)=> {
-    const {nombre , descripcion, precio , id_categoria,cantidad_disponible} = req.body
+ProductosRouter.post('/', [upload.single('imagen'), validarProducto, verificarValidaciones],
+    async (req, res) => {
+        const { nombre, descripcion, precio, id_categoria, cantidad_disponible } = req.body;
 
-    const fecha_agregado = new Date()
+        const fecha_agregado = new Date();
+        const imagen = req.file ? `/uploads/${req.file.filename}` : null; // Ruta de la imagen subida
+        try {
+            const [NuevoProducto] = await db.query(
+                'INSERT INTO productos (nombre, descripcion, precio, id_categoria, cantidad_disponible, fecha_agregado, imagen_url) VALUES(?, ?, ?, ?, ?, ?, ?)',
+                [nombre, descripcion, precio, id_categoria, cantidad_disponible, fecha_agregado, imagen]
+            );
 
-    try{
-        const [NuevoProducto] = await db.query('INSERT INTO productos (nombre , descripcion, precio , id_categoria,cantidad_disponible,fecha_agregado) VALUES(? , ? , ? , ? , ? , ?)', [nombre , descripcion, precio , id_categoria,cantidad_disponible,fecha_agregado])
-
-        res.status(200).send({mensaje : 'Nuevo producto agregado' , NuevoProducto})
-    }catch(error){
-        res.status(500).send({mensaje : 'error al agregar un producto'})
+            res.status(200).send({
+                mensaje: 'Nuevo producto agregado',
+                producto: {
+                    id: NuevoProducto.insertId,
+                    nombre,
+                    descripcion,
+                    precio,
+                    id_categoria,
+                    cantidad_disponible,
+                    fecha_agregado,
+                    imagen_url: imagen 
+                },
+            });
+        } catch (error) {
+            console.error(error); // Log de error adicional para depurar
+            res.status(500).send({ mensaje: 'Error al agregar un producto', error });
+        }
     }
-})
+);
+
 
 //Borrar productosd
 ProductosRouter.delete("/:id", [validarID, verificarValidaciones], async (req, res) => {

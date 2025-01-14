@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AgregarProductos } from "./services/ServicesProducts";
 import { ObtenerProductos } from "./services/ServicesProducts";
 import { EliminarProductos } from "./services/ServicesProducts";
 import { ActualizarProducto } from "./services/ServicesProducts";
-import { ObtenerCategorias } from "./services/ServicesProducts";
+import { useCategorias } from "../hooks/useCategorias";
+import { CategoriaSelect } from "../CategoriasSelect";
 import { Modal } from "../Modal/Modal";
 import { validarFormulario } from "../Modal/validaciones";
 import "./Productos.css";
@@ -12,32 +13,20 @@ import "../Modal/ModalProductos.css";
 export const Productos = () => {
   const [productos, setProductos] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProducto, setNewProducto] = useState({
-    nombre: "",
-    descripcion: "",
-    precio: "",
-    id_categoria: "",
-    cantidad_disponible: "",
-  });
+  const [newProducto, setNewProducto] = useState({nombre: "",descripcion: "",precio: "",id_categoria: "",cantidad_disponible: "",imagen_url:''});
   const [productoEditando, setProductoEditando] = useState(null);
-  const [categoriasList, setCategoriasList] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
 
+  const categoriasList = useCategorias();
+
   useEffect(() => {
+    const fetchProductos = async () => {
+      const data = await ObtenerProductos();
+      setProductos(data);
+    };
     fetchProductos();
-    fetchCategorias();
   }, []);
-
-  const fetchProductos = async () => {
-    const data = await ObtenerProductos();
-    setProductos(data);
-  };
-
-  const fetchCategorias = async () => {
-    const data = await ObtenerCategorias();
-    setCategoriasList(data);
-  };
 
   const fetcEliminarProducto = async (id) => {
     const confirmar = window.confirm("¿Deseas eliminar el producto?");
@@ -45,20 +34,14 @@ export const Productos = () => {
 
     try {
       await EliminarProductos(id);
-      setProductos((prevProductos) =>
-        prevProductos.filter((producto) => producto.id_producto !== id)
-      );
-      fetchProductos();
+      setProductos((prevProductos) =>prevProductos.filter((producto) => producto.id_producto !== id));
     } catch (error) {
-      console.error("Error al eliminar el producto:", error);
       alert("Hubo un problema al intentar eliminar el producto.");
     }
   };
 
   const editarProducto = (id) => {
-    const productoAEditar = productos.find(
-      (producto) => producto.id_producto === id
-    );
+    const productoAEditar = productos.find((producto) => producto.id_producto === id);
 
     if (productoAEditar) {
       setProductoEditando(productoAEditar);
@@ -78,13 +61,7 @@ export const Productos = () => {
     setIsModalOpen(!isModalOpen);
     if (isModalOpen) {
       setProductoEditando(null);
-      setNewProducto({
-        nombre: "",
-        descripcion: "",
-        precio: "",
-        id_categoria: "",
-        cantidad_disponible: "",
-      });
+      setNewProducto({nombre: "",descripcion: "",precio: "", id_categoria: "",cantidad_disponible: "",});
     }
   };
 
@@ -103,13 +80,7 @@ export const Productos = () => {
       cantidad_disponible: Number(newProducto.cantidad_disponible),
     };
 
-    if (
-      productos.find(
-        (producto) =>
-          producto.nombre === ProductoValido.nombre &&
-          producto.id_producto !== ProductoValido.id_producto
-      )
-    ) {
+    if (productos.find((producto) =>producto.nombre === ProductoValido.nombre &&producto.id_producto !== ProductoValido.id_producto)) {
       alert("El producto que deseas agregar ya existe");
       return;
     }
@@ -119,7 +90,6 @@ export const Productos = () => {
         .then(() => {
           toggleModal();
           setProductoEditando(null);
-          fetchProductos();
         })
         .catch((error) => {
           console.error("Error al actualizar producto", error);
@@ -129,7 +99,6 @@ export const Productos = () => {
       AgregarProductos(ProductoValido)
         .then(() => {
           toggleModal();
-          fetchProductos();
         })
         .catch((error) => {
           console.error("Error al agregar producto", error);
@@ -149,7 +118,8 @@ export const Productos = () => {
 
   const productosFiltrados = productos.filter((producto) => {
     const coincideBusqueda = producto.nombre.toLowerCase().includes(busqueda);
-    const coincideCategoria = filtroCategoria === "" || producto.id_categoria === parseInt(filtroCategoria); 
+    const coincideCategoria =
+      filtroCategoria === "" || producto.id_categoria === parseInt(filtroCategoria);
     return coincideBusqueda && coincideCategoria;
   });
 
@@ -163,22 +133,11 @@ export const Productos = () => {
             value={busqueda}
             onChange={manejarBusqueda}
           />
-          <select
-            name="id_categoria"
+          <CategoriaSelect
+            categorias={categoriasList}
             value={filtroCategoria}
             onChange={manejarFiltroCategoria}
-          >
-            <option value="">Todos</option>
-            {categoriasList.length > 0 ? (
-              categoriasList.map((cat) => (
-                <option key={cat.id_categoria} value={cat.id_categoria}>
-                  {cat.nombre_categoria}
-                </option>
-              ))
-            ) : (
-              <option disabled>Cargando categorías...</option>
-            )}
-          </select>
+          />
         </div>
         <div className="contenedor-agregar">
           <button className="agregar" onClick={toggleModal}>
@@ -189,6 +148,7 @@ export const Productos = () => {
       <table>
         <thead>
           <tr>
+            <th>Imagen</th>
             <th>Nombre</th>
             <th>Descripción</th>
             <th>Precio</th>
@@ -200,14 +160,13 @@ export const Productos = () => {
           {productosFiltrados.length > 0 ? (
             productosFiltrados.map((producto) => (
               <tr key={producto.id_producto}>
+                <td>{producto.imagen_url}</td>
                 <td>{producto.nombre}</td>
                 <td>{producto.descripcion}</td>
                 <td>${producto.precio}</td>
                 <td>{producto.cantidad_disponible}</td>
                 <td>
-                  <button
-                    onClick={() => editarProducto(producto.id_producto)}
-                  >
+                  <button onClick={() => editarProducto(producto.id_producto)}>
                     ✏️
                   </button>
                   <button

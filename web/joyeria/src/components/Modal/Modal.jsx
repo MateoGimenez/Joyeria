@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
-import { ObtenerCategorias } from "../Productos/services/ServicesProducts";
-import { NumericFormat } from 'react-number-format';
+import axios from "axios";
+import { useState , useEffect} from "react";
+import { useCategorias } from "../hooks/useCategorias";
+import { NumericFormat } from "react-number-format";
 
 export const Modal = ({ isModalOpen, toggleModal, newProducto, ObtenerDatosProducto, EnviarForm }) => {
-  const [categoriasList, setCategoriasList] = useState([]);
 
-  useEffect(() => {
-    fetchCategorias();
-  }, []);
+  const categoriasList = useCategorias()
 
-  const fetchCategorias = async () => {
-    const data = await ObtenerCategorias();
-    setCategoriasList(data);
+  const manejarCambioImagen = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      ObtenerDatosProducto({ target: { name: "imagen", value: file } });
+    }
   };
 
   if (!isModalOpen) return null;
@@ -80,9 +80,18 @@ export const Modal = ({ isModalOpen, toggleModal, newProducto, ObtenerDatosProdu
             }}
           />
 
-          <button onClick={EnviarForm}>Guardar</button>
+          <div>
+            <label htmlFor="imagenProducto">Imagen del Producto</label>
+            <input
+              type="file"
+              id="imagenProducto"
+              accept="image/*"
+              onChange={manejarCambioImagen}
+            />
+          </div>
 
-          <button onClick={toggleModal}>Cerrar</button>
+          <button type="button" onClick={EnviarForm}>Guardar</button>
+          <button type="button" onClick={toggleModal}>Cerrar</button>
         </form>
       </div>
     </div>
