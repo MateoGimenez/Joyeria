@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { conectarDB } from "./db.js";
 import { ProductosRouter } from "./productos.js";
 import { VentasRouter } from "./ventas.js";
@@ -24,7 +26,10 @@ app.use("/ventas", VentasRouter);
 
 app.use("/imagenes", ImagenesRouter); 
 
-app.use("/uploads", express.static("public/uploads")); // Servir imágenes estáticas
+// Definir __dirname manualmente en ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'))); // Servir imágenes estáticas
 
 app.listen(port, () => {
   console.log(`La aplicación está funcionando en: http://localhost:${port}`);

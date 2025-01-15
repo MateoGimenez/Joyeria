@@ -47,37 +47,38 @@ ProductosRouter.get("/:id" , [validarID , verificarValidaciones ], async(req,res
 })
 
 //Agregar productos
-ProductosRouter.post('/', [upload.single('imagen'), validarProducto, verificarValidaciones],
-    async (req, res) => {
-        const { nombre, descripcion, precio, id_categoria, cantidad_disponible } = req.body;
+ProductosRouter.post('/', [upload.single('file'), validarProducto, verificarValidaciones], async (req, res) => {
+    console.log('req.file:', req.file);  // Verifica qué devuelve Multer
+    const { nombre, descripcion, precio, id_categoria, cantidad_disponible } = req.body;
 
-        const fecha_agregado = new Date();
-        const imagen = req.file ? `/uploads/${req.file.filename}` : null; // Ruta de la imagen subida
-        try {
-            const [NuevoProducto] = await db.query(
-                'INSERT INTO productos (nombre, descripcion, precio, id_categoria, cantidad_disponible, fecha_agregado, imagen_url) VALUES(?, ?, ?, ?, ?, ?, ?)',
-                [nombre, descripcion, precio, id_categoria, cantidad_disponible, fecha_agregado, imagen]
-            );
+    const fecha_agregado = new Date();
 
-            res.status(200).send({
-                mensaje: 'Nuevo producto agregado',
-                producto: {
-                    id: NuevoProducto.insertId,
-                    nombre,
-                    descripcion,
-                    precio,
-                    id_categoria,
-                    cantidad_disponible,
-                    fecha_agregado,
-                    imagen_url: imagen 
-                },
-            });
-        } catch (error) {
-            console.error(error); // Log de error adicional para depurar
-            res.status(500).send({ mensaje: 'Error al agregar un producto', error });
-        }
+    const imagen = req.file ? `/uploads/${req.file.filename}` : null; // Ruta de la imagen subida
+    try {
+        const [NuevoProducto] = await db.query(
+            'INSERT INTO productos (nombre, descripcion, precio, id_categoria, cantidad_disponible, fecha_agregado, imagen_url) VALUES(?, ?, ?, ?, ?, ?, ?)',
+            [nombre, descripcion, precio, id_categoria, cantidad_disponible, fecha_agregado, imagen]
+        );
+
+        res.status(200).send({
+            mensaje: 'Nuevo producto agregado',
+            producto: {
+                id: NuevoProducto.insertId,
+                nombre,
+                descripcion,
+                precio,
+                id_categoria,
+                cantidad_disponible,
+                fecha_agregado,
+                imagen_url: imagen //La url de la imagen
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ mensaje: 'Error al agregar un producto', error });
     }
-);
+});
+
 
 
 //Borrar productosd
