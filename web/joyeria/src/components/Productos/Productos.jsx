@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
-import { AgregarProductos } from "./services/ServicesProducts";
-import { ObtenerProductos } from "./services/ServicesProducts";
-import { EliminarProductos } from "./services/ServicesProducts";
-import { ActualizarProducto } from "./services/ServicesProducts";
+import {AgregarProductos,ObtenerProductos,EliminarProductos,ActualizarProducto} from "./services/ServicesProducts";
 import { useCategorias } from "../hooks/useCategorias";
 import { CategoriaSelect } from "../CategoriasSelect";
-import { Modal } from "../Modal/Modal";
-import { validarFormulario } from "../Modal/validaciones";
+import { Modal } from '../Modal/Modal.jsx'
+import { validarFormulario } from "../Modal/validacionesModal.js";
 import "./Productos.css";
-import "../Modal/ModalProductos.css";
+
 
 export const Productos = () => {
   const [productos, setProductos] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProducto, setNewProducto] = useState({nombre: "",descripcion: "",precio: "",id_categoria: "",cantidad_disponible: "",imagen_url:''});
+  const [newProducto, setNewProducto] = useState({
+    nombre: "",
+    descripcion: "",
+    precio: "",
+    id_categoria: "",
+    cantidad_disponible: "",
+    imagen_url: null,
+  });
   const [productoEditando, setProductoEditando] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
@@ -29,12 +33,14 @@ export const Productos = () => {
   }, []);
 
   const fetcEliminarProducto = async (id) => {
-    const confirmar = window.confirm("¿Deseas eliminar el producto?");
+    const confirmar =  window.confirm("¿Deseas eliminar el producto?");
     if (!confirmar) return;
 
     try {
       await EliminarProductos(id);
-      setProductos((prevProductos) =>prevProductos.filter((producto) => producto.id_producto !== id));
+      setProductos((prevProductos) =>
+        prevProductos.filter((producto) => producto.id_producto !== id)
+      );
     } catch (error) {
       alert("Hubo un problema al intentar eliminar el producto.");
     }
@@ -52,6 +58,7 @@ export const Productos = () => {
         precio: productoAEditar.precio,
         id_categoria: productoAEditar.id_categoria,
         cantidad_disponible: productoAEditar.cantidad_disponible,
+        imagen_url: null, // Resetear imagen para evitar confusión
       });
       toggleModal();
     }
@@ -61,53 +68,70 @@ export const Productos = () => {
     setIsModalOpen(!isModalOpen);
     if (isModalOpen) {
       setProductoEditando(null);
-      setNewProducto({nombre: "",descripcion: "",precio: "", id_categoria: "",cantidad_disponible: "",});
+      setNewProducto({
+        nombre: "",
+        descripcion: "",
+        precio: "",
+        id_categoria: "",
+        cantidad_disponible: "",
+        imagen_url: null,
+      });
     }
   };
 
   const ObtenerDatosProducto = (e) => {
-    const { name, value } = e.target;
-    setNewProducto((prevProducto) => ({ ...prevProducto, [name]: value }));
-  };
-
-  const EnviarForm = () => {
-    if (!validarFormulario(newProducto)) return;
-
-    const ProductoValido = {
-      ...newProducto,
-      precio: Number(newProducto.precio),
-      id_categoria: Number(newProducto.id_categoria),
-      cantidad_disponible: Number(newProducto.cantidad_disponible),
-    };
-
-    if (productos.find((producto) =>producto.nombre === ProductoValido.nombre &&producto.id_producto !== ProductoValido.id_producto)) {
-      alert("El producto que deseas agregar ya existe");
-      return;
-    }
-
-    if (productoEditando) {
-      ActualizarProducto(ProductoValido)
-        .then(() => {
-          toggleModal();
-          setProductoEditando(null);
-        })
-        .catch((error) => {
-          console.error("Error al actualizar producto", error);
-          alert("Hubo un problema al querer actualizar el producto");
-        });
+    const { name, value, files } = e.target;
+  
+    if (name === 'image') {
+      // Si es el campo de la imagen, guardamos el archivo en el estado
+      setNewProducto((prev) => ({
+        ...prev,
+        imagen_url: files[0],  // Almacenamos el archivo
+      }));
     } else {
-      AgregarProductos(ProductoValido)
-        .then(() => {
-          toggleModal();
-        })
-        .catch((error) => {
-          console.error("Error al agregar producto", error);
-          alert("Hubo un problema al querer agregar el producto");
-        });
+      // Para otros campos
+      setNewProducto((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
+  
+  
 
-  // Funciones de búsqueda y filtrado
+  const EnviarForm = async () => {
+    if (!validarFormulario(newProducto)) return;
+  
+    const formData = new FormData();
+    formData.append("nombre", newProducto.nombre);
+    formData.append("descripcion", newProducto.descripcion || "");
+    formData.append("precio", Number(newProducto.precio));
+    formData.append("id_categoria", Number(newProducto.id_categoria));
+    formData.append("cantidad_disponible", Number(newProducto.cantidad_disponible));
+  
+    // Si hay un archivo de imagen, lo agregamos al FormData
+    if (newProducto.imagen_url) {
+      formData.append("image", newProducto.imagen_url);  // Asegúrate de que sea "image"
+    }
+  
+    try {
+      if (productoEditando) {
+        await ActualizarProducto(productoEditando.id_producto, formData);
+      } else {
+        await AgregarProductos(formData);
+      }
+      toggleModal();
+      const data = await ObtenerProductos();
+      setProductos(data);
+    } catch (error) {
+      alert("Hubo un problema al intentar guardar el producto.");
+      console.error(error);
+    }
+  };
+  
+  
+  
+
   const manejarBusqueda = (e) => {
     setBusqueda(e.target.value.toLowerCase());
   };
@@ -160,31 +184,33 @@ export const Productos = () => {
           {productosFiltrados.length > 0 ? (
             productosFiltrados.map((producto) => (
               <tr key={producto.id_producto}>
-                <td>{producto.imagen_url}</td>
+                <td>
+                  {producto.imagen_url ? (
+                    <img
+                      src={producto.imagen_url}
+                      className="imagen-producto"
+                    />
+                  ) : (
+                    "Sin imagen"
+                  )}
+                </td>
                 <td>{producto.nombre}</td>
                 <td>{producto.descripcion}</td>
                 <td>${producto.precio}</td>
                 <td>{producto.cantidad_disponible}</td>
                 <td>
-                  <button onClick={() => editarProducto(producto.id_producto)}>
-                    ✏️
-                  </button>
-                  <button
-                    onClick={() => fetcEliminarProducto(producto.id_producto)}
-                  >
-                    🗑️
-                  </button>
+                  <button onClick={() => editarProducto(producto.id_producto)}>✏️</button>
+                  <button onClick={() => fetcEliminarProducto(producto.id_producto)}>🗑️</button>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="5">No hay productos disponibles</td>
+              <td colSpan="6">No hay productos disponibles</td>
             </tr>
           )}
         </tbody>
       </table>
-
       <Modal
         isModalOpen={isModalOpen}
         toggleModal={toggleModal}

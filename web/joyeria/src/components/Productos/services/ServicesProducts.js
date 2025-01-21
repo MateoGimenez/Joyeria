@@ -9,22 +9,19 @@ export const ObtenerProductos = async () => {
     }
   };
 
-export const AgregarProductos = async(producto) => {
-    try{
-        const res = await fetch('http://localhost:3000/productos',{
-            method:'POST',
-            headers:{"Content-Type" : "application/json"},
-            body : JSON.stringify(producto)
-        })
-
-        if(!res.ok){
-            console.log('Error al intentar agregar el producto desde el post')
-            console.log(res)
-        }
-    }catch(error){
-        console.log('Error al intentar agragar un producto desde el post')
-    }
-}
+export const AgregarProductos = async (formData) => {
+  const response = await fetch("http://localhost:3000/productos", {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Error desconocido");
+  }
+  return response.json();
+};
+  
+  
 
 export const ObtenerCategorias = async() => {
     try{
@@ -52,32 +49,24 @@ export const EliminarProductos = async (id_producto) => {
       console.error("Error en el delete service", error);
       alert("Hubo un error en la comunicación con el servidor.");
     }
-  };
+};
   
-export const ActualizarProducto = async (producto) => {
-    try {
-      const res = await fetch(`http://localhost:3000/productos/${producto.id_producto}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nombre: producto.nombre,
-          descripcion: producto.descripcion,
-          precio: producto.precio,
-          id_categoria: producto.id_categoria,
-          cantidad_disponible: producto.cantidad_disponible,
-        }),
-      });
-  
-      if (res.ok) {
-        alert("El producto fue actualizado correctamente");
-      } else {
-        alert("No se pudo actualizar el producto. Intenta de nuevo.");
-      }
-    } catch (error) {
-      console.error("Error en el put service", error);
-      alert("Hubo un error en la comunicación con el servidor.");
+export const ActualizarProducto = async (id, formData) => {
+  try {
+    const response = await fetch(`http://localhost:3000/productos/${id}`, {
+      method: "PUT",
+      body: formData, // FormData para actualizar con imagen incluida
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al actualizar producto");
     }
-  };
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error al actualizar producto:", error);
+    throw error;
+  }
+};
+
   

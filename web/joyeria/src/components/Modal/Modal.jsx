@@ -1,18 +1,11 @@
-import axios from "axios";
-import { useState , useEffect} from "react";
 import { useCategorias } from "../hooks/useCategorias";
 import { NumericFormat } from "react-number-format";
+import './ModalProductos.css'
 
 export const Modal = ({ isModalOpen, toggleModal, newProducto, ObtenerDatosProducto, EnviarForm }) => {
 
   const categoriasList = useCategorias()
 
-  const manejarCambioImagen = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      ObtenerDatosProducto({ target: { name: "imagen", value: file } });
-    }
-  };
 
   if (!isModalOpen) return null;
 
@@ -80,15 +73,14 @@ export const Modal = ({ isModalOpen, toggleModal, newProducto, ObtenerDatosProdu
             }}
           />
 
-          <div>
-            <label htmlFor="imagenProducto">Imagen del Producto</label>
-            <input
-              type="file"
-              id="imagenProducto"
-              accept="image/*"
-              onChange={manejarCambioImagen}
-            />
-          </div>
+          <input
+            type="file"
+            name="image"  
+            id="imagenProducto"
+            accept="image/*"
+            onChange={ObtenerDatosProducto}
+          />
+
 
           <button type="button" onClick={EnviarForm}>Guardar</button>
           <button type="button" onClick={toggleModal}>Cerrar</button>
