@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import {AgregarProductos,ObtenerProductos,EliminarProductos,ActualizarProducto} from "./services/ServicesProducts";
+import {
+  AgregarProductos,
+  ObtenerProductos,
+  EliminarProductos,
+  ActualizarProducto,
+} from "./services/ServicesProducts";
 import { useCategorias } from "../hooks/useCategorias";
 import { CategoriaSelect } from "../CategoriasSelect";
-import { Modal } from '../Modal/Modal.jsx'
+import { Modal } from "../Modal/Modal.jsx";
 import { validarFormulario } from "../Modal/validacionesModal.js";
 import "./Productos.css";
-
 
 export const Productos = () => {
   const [productos, setProductos] = useState([]);
@@ -33,7 +37,7 @@ export const Productos = () => {
   }, []);
 
   const fetcEliminarProducto = async (id) => {
-    const confirmar =  window.confirm("¿Deseas eliminar el producto?");
+    const confirmar = window.confirm("¿Deseas eliminar el producto?");
     if (!confirmar) return;
 
     try {
@@ -47,7 +51,9 @@ export const Productos = () => {
   };
 
   const editarProducto = (id) => {
-    const productoAEditar = productos.find((producto) => producto.id_producto === id);
+    const productoAEditar = productos.find(
+      (producto) => producto.id_producto === id
+    );
 
     if (productoAEditar) {
       setProductoEditando(productoAEditar);
@@ -58,7 +64,7 @@ export const Productos = () => {
         precio: productoAEditar.precio,
         id_categoria: productoAEditar.id_categoria,
         cantidad_disponible: productoAEditar.cantidad_disponible,
-        imagen_url: null, // Resetear imagen para evitar confusión
+        imagen_url: null,
       });
       toggleModal();
     }
@@ -81,39 +87,34 @@ export const Productos = () => {
 
   const ObtenerDatosProducto = (e) => {
     const { name, value, files } = e.target;
-  
-    if (name === 'image') {
-      // Si es el campo de la imagen, guardamos el archivo en el estado
+
+    if (name === "image") {
       setNewProducto((prev) => ({
         ...prev,
-        imagen_url: files[0],  // Almacenamos el archivo
+        imagen_url: files[0],
       }));
     } else {
-      // Para otros campos
       setNewProducto((prev) => ({
         ...prev,
         [name]: value,
       }));
     }
   };
-  
-  
 
   const EnviarForm = async () => {
-    if (!validarFormulario(newProducto)) return;
-  
+    if (!validarFormulario(newProducto , productos)) return;
+
     const formData = new FormData();
     formData.append("nombre", newProducto.nombre);
     formData.append("descripcion", newProducto.descripcion || "");
     formData.append("precio", Number(newProducto.precio));
     formData.append("id_categoria", Number(newProducto.id_categoria));
     formData.append("cantidad_disponible", Number(newProducto.cantidad_disponible));
-  
-    // Si hay un archivo de imagen, lo agregamos al FormData
+
     if (newProducto.imagen_url) {
-      formData.append("image", newProducto.imagen_url);  // Asegúrate de que sea "image"
+      formData.append("image", newProducto.imagen_url);
     }
-  
+
     try {
       if (productoEditando) {
         await ActualizarProducto(productoEditando.id_producto, formData);
@@ -128,9 +129,6 @@ export const Productos = () => {
       console.error(error);
     }
   };
-  
-  
-  
 
   const manejarBusqueda = (e) => {
     setBusqueda(e.target.value.toLowerCase());
@@ -158,59 +156,44 @@ export const Productos = () => {
             onChange={manejarBusqueda}
           />
           <CategoriaSelect
+            className = "filtroSelect"
             categorias={categoriasList}
             value={filtroCategoria}
             onChange={manejarFiltroCategoria}
           />
         </div>
         <div className="contenedor-agregar">
-          <button className="agregar" onClick={toggleModal}>
-            Agregar
-          </button>
+          <button className="agregar" onClick={toggleModal}>Agregar Producto</button>
         </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Imagen</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Precio</th>
-            <th>Cantidad Disponible</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {productosFiltrados.length > 0 ? (
-            productosFiltrados.map((producto) => (
-              <tr key={producto.id_producto}>
-                <td>
-                  {producto.imagen_url ? (
-                    <img
-                      src={producto.imagen_url}
-                      className="imagen-producto"
-                    />
-                  ) : (
-                    "Sin imagen"
-                  )}
-                </td>
-                <td>{producto.nombre}</td>
-                <td>{producto.descripcion}</td>
-                <td>${producto.precio}</td>
-                <td>{producto.cantidad_disponible}</td>
-                <td>
-                  <button onClick={() => editarProducto(producto.id_producto)}>✏️</button>
-                  <button onClick={() => fetcEliminarProducto(producto.id_producto)}>🗑️</button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6">No hay productos disponibles</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+
+      <div className="contenedor-productos">
+        {productosFiltrados.length > 0 ? (
+          productosFiltrados.map((producto) => (
+            <div className="cart" key={producto.id_producto}>
+              {producto.imagen_url ? (
+                <img src={producto.imagen_url} alt={producto.nombre} className="imagen-producto"/>) : (<div className="imagen-placeholder">Sin imagen</div>)}
+              <h2>{producto.nombre}</h2>
+              <p>{producto.descripcion}</p>
+              <p className="precio">${producto.precio}</p>
+              <div className="acciones-producto">
+                <button className="editar"
+                  onClick={() => editarProducto(producto.id_producto)}>✏️ Editar</button>
+                <button
+                  className="eliminar"
+                  onClick={() => fetcEliminarProducto(producto.id_producto)}
+                >
+                  🗑️ Eliminar
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p>No hay productos disponibles</p>
+        )}
+      </div>
+
+
       <Modal
         isModalOpen={isModalOpen}
         toggleModal={toggleModal}

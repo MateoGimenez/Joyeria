@@ -2,6 +2,8 @@ import express from 'express'
 import {db} from './db.js'
 import { validarID , validarProducto, verificarValidaciones } from './validaciones.js'
 import { upload } from './multer.js'
+import fs from 'fs';
+import path from 'path';
 
 export const ProductosRouter = express.Router()
 
@@ -79,16 +81,35 @@ ProductosRouter.post('/', upload.single('image') , validarProducto, verificarVal
     }
 });
 
-
-
-//Borrar productosd
 ProductosRouter.delete("/:id", [validarID, verificarValidaciones], async (req, res) => {
     const { id } = req.params;
+
     try {
-        await db.query('DELETE FROM productos WHERE id_producto = ? ', [id]);
-        res.status(200).send({ mensaje: `Se borró el Producto con el id ${id}` });
+        // Obtener la URL de la imagen asociada al producto
+        const [producto] = await db.query('SELECT imagen_url FROM productos WHERE id_producto = ?', [id]);
+        if (producto.length === 0) {
+            return res.status(404).send({ mensaje: 'Producto no encontrado' });
+        }
+
+        const imagenUrl = producto[0].imagen_url;
+        const imagePath = path.join('public', imagenUrl); // Ruta completa de la imagen
+
+        // Eliminar el archivo de la imagen
+        fs.unlink(imagePath, (err) => {
+            if (err) {
+                console.error(`Error al eliminar la imagen: ${imagenUrl}`, err);
+            } else {
+                console.log(`Imagen eliminada: ${imagenUrl}`);
+            }
+        });
+
+        // Eliminar el producto de la base de datos
+        await db.query('DELETE FROM productos WHERE id_producto = ?', [id]);
+
+        res.status(200).send({ mensaje: `Producto con id ${id} y su imagen fueron eliminados` });
     } catch (error) {
-        res.status(500).send({ mensaje: 'Error en eliminar productos' });
+        console.error('Error al eliminar el producto:', error);
+        res.status(500).send({ mensaje: 'Error en eliminar producto' });
     }
 });
 

@@ -2,7 +2,6 @@ export const ObtenerProductos = async () => {
     try {
       const res = await fetch("http://localhost:3000/productos");
       const data = await res.json();
-      console.log(data)
       return data 
     } catch (error) {
       console.error("Error al obtener los productos", error);
