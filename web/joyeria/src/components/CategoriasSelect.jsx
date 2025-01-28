@@ -2,11 +2,11 @@ import React from "react";
 
 export const CategoriaSelect = ({ categorias, value, onChange }) => {
   const selectStyles = {
-    width: "15%",
+    width: "50%",
     maxWidth: "300px",
     padding: "8px 12px",
     fontSize: "16px",
-    border: "1px solid #ccc",
+    border: "1px solid goldenrod",
     borderRadius: "4px",
     backgroundColor: "#f9f9f9",
     color: "#333",

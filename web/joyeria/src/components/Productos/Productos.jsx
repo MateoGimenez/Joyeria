@@ -174,17 +174,16 @@ export const Productos = () => {
               {producto.imagen_url ? (
                 <img src={producto.imagen_url} alt={producto.nombre} className="imagen-producto"/>) : (<div className="imagen-placeholder">Sin imagen</div>)}
               <h2>{producto.nombre}</h2>
+              <p>id:{producto.id_producto}</p>
               <p>{producto.descripcion}</p>
+              <p>Cantidad Disponible:{producto.cantidad_disponible}</p>
               <p className="precio">${producto.precio}</p>
               <div className="acciones-producto">
                 <button className="editar"
                   onClick={() => editarProducto(producto.id_producto)}>✏️ Editar</button>
                 <button
                   className="eliminar"
-                  onClick={() => fetcEliminarProducto(producto.id_producto)}
-                >
-                  🗑️ Eliminar
-                </button>
+                  onClick={() => fetcEliminarProducto(producto.id_producto)}>🗑️ Eliminar</button>
               </div>
             </div>
           ))

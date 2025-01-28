@@ -1,0 +1,112 @@
+/* Estilos generales */
+.contenedor_ventas {
+    margin: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Estilos para la sección de acciones */
+  .acciones {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .contenedor_nuevaVenta{
+    display: flex;
+    gap: 10px;
+  }
+  .contenedor_buscar {
+    display: flex;
+    gap: 10px;
+  }
+
+  
+  .input_buscar {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid goldenrod;
+    border-radius: 4px;
+  }
+  
+  .categoria_select {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Estilos para la tabla */
+  .tabla_ventas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .tabla_cabecera {
+    background-color: #f4f4f4;
+  }
+  
+  .tabla_fila_cabecera {
+    text-align: left;
+    font-weight: bold;
+  }
+  
+  .tabla_columna_cabecera {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  .tabla_cuerpo .tabla_fila:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .tabla_fila:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .tabla_celda {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  /* Estilos para los botones */
+  .boton_eliminar {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 10px;
+  }
+  
+  .boton_eliminar:hover {
+    background-color: #e60000;
+  }
+  
+  .boton_editar {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 19px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .boton_editar:hover {
+    background-color: #3e8e41;
+  }
+  
+  /* Mensaje de carga */
+  .mensaje_cargando {
+    font-size: 16px;
+    color: #666;
+    text-align: center;
+    margin-top: 20px;
+  }
+  
