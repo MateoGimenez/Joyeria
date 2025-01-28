@@ -9,15 +9,24 @@ export const ObtenerVentas = async () => {
     }
 }
 
-export const AgregarVentas = async(NewVenta) => {
-    const res  = await fetch("http://localhost:3000/ventas" ,{
-        method: 'POST',
-        body: NewVenta,
-    })
-    if(res.ok){
-        const errordata = await res.json()
-        throw new Error(errordata.error|| 'Error en agregarVentas') 
-    }
+export const AgregarVentas = async (NewVenta) => {
+    try {
+        const res = await fetch("http://localhost:3000/ventas", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', 
+            },
+            body: JSON.stringify(NewVenta), // Asegúrate de convertir el objeto a JSON
+        });
 
-    return res.json()
-}
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Error en agregarVenta');
+        }
+
+        return res.json();
+    } catch (error) {
+        console.error('Error al agregar la venta:', error);
+        throw error;
+    }
+};

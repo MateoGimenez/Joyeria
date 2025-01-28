@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { CategoriaSelect } from "../CategoriasSelect";
 import { useCategorias } from "../hooks/useCategorias";
-import { ObtenerVentas , AgregarVentas } from "./Services/ServicesVentas";
+import { ObtenerVentas, AgregarVentas } from "./Services/ServicesVentas";
 import { validarNuevaVenta } from "./validacionesVentas";
 import "./Ventas.css";
 
@@ -10,7 +10,11 @@ export const Ventas = () => {
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
   const categoriasList = useCategorias();
-  const [NewVenta, setNewVenta] = useState({id_producto : '' , cantidad_vendida : ''  });
+  const [NewVenta, setNewVenta] = useState({
+    id_producto: "",
+    cantidad_vendida: "",
+    precio_unitario: 0, // Precio inicial como número
+  });
 
   useEffect(() => {
     const fetchObtenerVentas = async () => {
@@ -37,37 +41,56 @@ export const Ventas = () => {
 
   const ObtenerDatosVentas = (e) => {
     const { name, value } = e.target;
-    setNewVenta((prev) => ({
-      ...prev,
-      [name]: name === "id_producto" || name === "cantidad_vendida" ? Number(value) : value,
-    }));
-  };
-  
-  const NuevaVenta = async () => {
-    if(!validarNuevaVenta(NewVenta , ventas))return
-    try{
-      await AgregarVentas(NewVenta)
-    }catch(err){
-      alert('Hubo un problema para agregar la venta')
-    }
 
-  }
+    setNewVenta((prev) => {
+      const updatedVenta = {
+        ...prev,
+        [name]: name === "id_producto" || name === "cantidad_vendida" ? Number(value) : value,
+      };
+
+      // Actualizar el precio si se cambia el id_producto
+      if (name === "id_producto") {
+        const productoSeleccionado = ventas.find(
+          (producto) => producto.id_producto === Number(value)
+        );
+        if (productoSeleccionado) {
+          updatedVenta.precio_unitario = Number(productoSeleccionado.precio_unitario); // Asignar precio como número
+        }
+      }
+
+      return updatedVenta;
+    });
+  };
+
+  const NuevaVenta = async () => {
+    if (!validarNuevaVenta(NewVenta, ventas)) return;
+    console.log(NewVenta);
+    try {
+      await AgregarVentas(NewVenta);
+      const data = await ObtenerVentas()
+      setVentas(data)
+      alert("Venta agregada correctamente");
+    } catch (err) {
+      alert("Hubo un problema para agregar la venta");
+    }
+  };
+
   return (
     <div className="contenedor_ventas">
       <div className="acciones">
         <div className="contenedor_nuevaVenta">
-          <input 
+          <input
             type="text"
             name="id_producto"
-            placeholder="id"
-            onChange={ObtenerDatosVentas}            
+            placeholder="ID Producto"
+            onChange={ObtenerDatosVentas}
           />
-          <input 
+          <input
             type="number"
-            name="cantidad_vendida" 
+            name="cantidad_vendida"
             placeholder="Cantidad"
             onChange={ObtenerDatosVentas}
-            />
+          />
           <button onClick={NuevaVenta}>Agregar</button>
         </div>
         <div className="contenedor_buscar">
@@ -93,7 +116,7 @@ export const Ventas = () => {
                 <th className="tabla_columna_cabecera">ID</th>
                 <th className="tabla_columna_cabecera">Nombre</th>
                 <th className="tabla_columna_cabecera">Cantidad</th>
-                <th className="tabla_columna_cabecera">Precio producto</th>
+                <th className="tabla_columna_cabecera">Precio Producto</th>
                 <th className="tabla_columna_cabecera">Fecha</th>
                 <th className="tabla_columna_cabecera">Total</th>
                 <th className="tabla_columna_cabecera">Acciones</th>
@@ -107,7 +130,9 @@ export const Ventas = () => {
                   <td className="tabla_celda">{venta.cantidad_vendida}</td>
                   <td className="tabla_celda">${venta.precio}</td>
                   <td className="tabla_celda">{venta.fecha_venta}</td>
-                  <td className="tabla_celda">{venta.precio * venta.cantidad_vendida}</td>
+                  <td className="tabla_celda">
+                    {venta.precio * venta.cantidad_vendida}
+                  </td>
                   <td className="tabla_celda">
                     <button className="boton_editar">✏️ Editar</button>
                     <button className="boton_eliminar">🗑️ Eliminar</button>
