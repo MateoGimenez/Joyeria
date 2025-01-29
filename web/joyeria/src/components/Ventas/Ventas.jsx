@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { CategoriaSelect } from "../CategoriasSelect";
 import { useCategorias } from "../hooks/useCategorias";
-import { ObtenerVentas, AgregarVentas } from "./Services/ServicesVentas";
+import { ObtenerVentas, AgregarVentas ,BorrarVenta } from "./Services/ServicesVentas";
 import { validarNuevaVenta } from "./validacionesVentas";
 import "./Ventas.css";
 
@@ -13,7 +13,7 @@ export const Ventas = () => {
   const [NewVenta, setNewVenta] = useState({
     id_producto: "",
     cantidad_vendida: "",
-    precio_unitario: 0, // Precio inicial como número
+    precio_unitario: 0, 
   });
 
   useEffect(() => {
@@ -75,6 +75,15 @@ export const Ventas = () => {
     }
   };
 
+  const BorrarVentas = async (id) => {
+    try{
+      await BorrarVenta(id)
+      const data = await ObtenerVentas()
+      setVentas(data)
+    }catch(err){
+      alert('Error al borrar la venta')
+    }
+  }
   return (
     <div className="contenedor_ventas">
       <div className="acciones">
@@ -135,7 +144,7 @@ export const Ventas = () => {
                   </td>
                   <td className="tabla_celda">
                     <button className="boton_editar">✏️ Editar</button>
-                    <button className="boton_eliminar">🗑️ Eliminar</button>
+                    <button className="boton_eliminar" onClick={()=> BorrarVentas(venta.id_detalle_venta)}>🗑️ Eliminar</button>
                   </td>
                 </tr>
               ))}

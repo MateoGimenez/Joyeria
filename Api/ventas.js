@@ -1,6 +1,8 @@
 import express from 'express'
 import {db} from "./db.js"
 
+import { validarID , verificarValidaciones } from './validaciones.js'
+
 export const VentasRouter = express.Router()
 
 VentasRouter.get("/" ,async(req , res) => {
@@ -25,5 +27,19 @@ VentasRouter.post('/',async(req , res ) =>{
         res.status(200).send({mensaje : 'venta concretada con exito', NuevaVenta})
     }catch(err){
         res.status(500).send({mensaje: 'Algo salio mal en el back'})
+    }
+})
+
+
+VentasRouter.delete('/:id',[validarID , verificarValidaciones] ,async(req,res) => {
+    try{
+        const { id } =  req.params
+
+        await db.query('DELETE FROM detalle_ventas WHERE id_detalle_venta = ? ', [ id ] )
+
+        res.status(200).send({mensaje : 'Venta borrada con exito'})
+
+    }catch(err){
+        res.status(500).send({mensaje : 'Error al borrar una venta' , err})
     }
 })

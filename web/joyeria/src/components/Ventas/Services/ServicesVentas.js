@@ -30,3 +30,17 @@ export const AgregarVentas = async (NewVenta) => {
         throw error;
     }
 };
+
+export const BorrarVenta = async(id) =>{
+    try{
+        const res = await fetch(`http://localhost:3000/ventas/${id}`,{
+            method: 'DELETE'
+        });
+        
+        if(res.ok){
+            console.log('Venta borrada')
+        }
+    }catch(err){
+        console.log('Error al borrar la venta')
+    }
+}
