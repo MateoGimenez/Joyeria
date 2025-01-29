@@ -27,3 +27,9 @@ export const validarProducto = [
     .notEmpty().withMessage('Debe asignar alguna cantidad')
     .isInt({gt:0}).withMessage('Debe ser numero positvo')
 ]
+
+export const validarVenta = [
+  body('precio_unitario')
+  .notEmpty().withMessage('El precio unitario debe existir')
+  .isInt({gt:0}).withMessage('El precio debe ser postivo')
+]

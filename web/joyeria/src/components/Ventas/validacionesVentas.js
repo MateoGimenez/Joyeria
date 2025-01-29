@@ -15,6 +15,10 @@ export const validarNuevaVenta = (newVenta , listaVentas) => {
         return false
     }
 
+    if(!newVenta.precio_unitario || newVenta.precio_unitario <= 0){
+        alert('El producto no tiene un precio establecido')
+    }
+
     
     return true
 }
