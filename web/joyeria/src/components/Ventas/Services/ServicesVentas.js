@@ -16,7 +16,7 @@ export const AgregarVentas = async (NewVenta) => {
             headers: {
                 'Content-Type': 'application/json', 
             },
-            body: JSON.stringify(NewVenta), // Asegúrate de convertir el objeto a JSON
+            body: JSON.stringify(NewVenta), 
         });
 
         if (!res.ok) {
@@ -44,3 +44,29 @@ export const BorrarVenta = async(id) =>{
         console.log('Error al borrar la venta')
     }
 }
+
+export const ActualizarVentas = async (id, NewVenta) => {
+    try {
+      const res = await fetch(`http://localhost:3000/ventas/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(NewVenta),
+      });
+  
+      const data = await res.json(); // Intentar leer la respuesta JSON
+  
+      if (!res.ok) {
+        console.error("Error al actualizar la venta:", data);
+        return { success: false, error: data };
+      }
+  
+      console.log("Venta actualizada correctamente:", data);
+      return { success: true, data };
+    } catch (err) {
+      console.error("Error en la solicitud de actualización:", err);
+      return { success: false, error: err };
+    }
+  };
+  

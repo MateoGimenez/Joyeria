@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { CategoriaSelect } from "../CategoriasSelect";
 import { useCategorias } from "../hooks/useCategorias";
-import { ObtenerVentas, AgregarVentas ,BorrarVenta } from "./Services/ServicesVentas";
+import { ObtenerVentas, AgregarVentas ,BorrarVenta , ActualizarVentas} from "./Services/ServicesVentas";
 import { validarNuevaVenta } from "./validacionesVentas";
 import "./Ventas.css";
 
@@ -15,6 +15,7 @@ export const Ventas = () => {
     cantidad_vendida: "",
     precio_unitario: 0, 
   });
+  const [VentaEditada , setVentaEditada] = useState(null)
 
   useEffect(() => {
     const fetchObtenerVentas = async () => {
@@ -84,23 +85,50 @@ export const Ventas = () => {
       alert('Error al borrar la venta')
     }
   }
+
+  const EditarVentas =  (id) =>{
+    const VentaAEditar = ventas.find((venta) => venta.id_detalle_venta === id)
+    if(VentaAEditar){
+      setVentaEditada(VentaAEditar)
+      setNewVenta({
+        id_producto : VentaAEditar.id_producto ,
+        cantidad_vendida : VentaAEditar.cantidad_vendida ,
+        precio_unitario : Number(VentaAEditar.precio_unitario)
+      })
+    }
+  }
+
+  const ActualizarVentaEditada = async() =>{
+    if(window.confirm('Confirma la actualizacion de la venta')){
+      const idVenta = VentaEditada.id_detalle_venta
+      console.log('Datos' , NewVenta)
+
+      await ActualizarVentas( idVenta , NewVenta)
+      const data = await ObtenerVentas()
+      setVentas(data)
+    }else{
+      console.log('cancelo actualizar')
+    }
+  }
   return (
     <div className="contenedor_ventas">
       <div className="acciones">
         <div className="contenedor_nuevaVenta">
           <input
-            type="text"
+            type="number"
             name="id_producto"
+            value={NewVenta.id_producto}
             placeholder="ID Producto"
             onChange={ObtenerDatosVentas}
           />
           <input
             type="number"
             name="cantidad_vendida"
+            value={NewVenta.cantidad_vendida}
             placeholder="Cantidad"
             onChange={ObtenerDatosVentas}
           />
-          <button onClick={NuevaVenta}>Agregar</button>
+          <button  disabled={!NewVenta.id_producto || !NewVenta.cantidad_vendida} onClick={VentaEditada ? ActualizarVentaEditada : NuevaVenta}>{VentaEditada ? 'Actualizar' : 'Agregar'}</button>
         </div>
         <div className="contenedor_buscar">
           <input
@@ -122,7 +150,8 @@ export const Ventas = () => {
           <table className="tabla_ventas">
             <thead className="tabla_cabecera">
               <tr className="tabla_fila_cabecera">
-                <th className="tabla_columna_cabecera">ID</th>
+                <th className="tabla_columna_cabecera">ID-Venta</th>
+                <th className="tabla_columna_cabecera">ID-Producto</th>
                 <th className="tabla_columna_cabecera">Nombre</th>
                 <th className="tabla_columna_cabecera">Cantidad</th>
                 <th className="tabla_columna_cabecera">Precio Producto</th>
@@ -134,16 +163,15 @@ export const Ventas = () => {
             <tbody className="tabla_cuerpo">
               {productosFiltrados.map((venta) => (
                 <tr key={venta.id_detalle_venta} className="tabla_fila">
+                  <td className="tabla_celda">{venta.id_detalle_venta}</td>
                   <td className="tabla_celda">{venta.id_producto}</td>
                   <td className="tabla_celda">{venta.nombre}</td>
                   <td className="tabla_celda">{venta.cantidad_vendida}</td>
                   <td className="tabla_celda">${venta.precio}</td>
                   <td className="tabla_celda">{venta.fecha_venta}</td>
+                  <td className="tabla_celda">{venta.precio * venta.cantidad_vendida}</td>
                   <td className="tabla_celda">
-                    {venta.precio * venta.cantidad_vendida}
-                  </td>
-                  <td className="tabla_celda">
-                    <button className="boton_editar">✏️ Editar</button>
+                    <button className="boton_editar" onClick={() => EditarVentas(venta.id_detalle_venta)}>✏️ Editar</button>
                     <button className="boton_eliminar" onClick={()=> BorrarVentas(venta.id_detalle_venta)}>🗑️ Eliminar</button>
                   </td>
                 </tr>
