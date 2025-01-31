@@ -114,31 +114,43 @@ ProductosRouter.delete("/:id", [validarID, verificarValidaciones], async (req, r
 });
 
 
-// Actualizar productos por id
-ProductosRouter.put('/:id', [validarProducto, validarID, verificarValidaciones], async (req, res) => {
-    const { nombre, descripcion, precio, id_categoria, cantidad_disponible, imagen_url } = req.body;
-    const { id } = req.params; // Extraemos el id de los parámetros de la URL.
-
+ProductosRouter.put('/:id', upload.single('image'), [validarProducto, validarID, verificarValidaciones], async (req, res) => {
+    const { nombre, descripcion, precio, id_categoria, cantidad_disponible } = req.body;
+    const { id } = req.params;
+    const imagen_url = req.file ? req.file.path : null;
+    console.log('Imagen recibida:', req.file); 
     try {
-        // Si no se envía una nueva imagen, usamos el valor actual en la base de datos (o null si no existe).
         const [productoActual] = await db.query('SELECT imagen_url FROM productos WHERE id_producto = ?', [id]);
-        
-        const imagen = imagen_url || productoActual[0]?.imagen_url; // Si no hay imagen nueva, usamos la existente.
 
-        // Realizamos la actualización del producto en la base de datos.
+        // Si el producto tiene una imagen asignada
+        if (productoActual[0]?.imagen_url && imagen_url && productoActual[0]?.imagen_url !== imagen_url) {
+            const imagePath = path.join(__dirname, 'public', productoActual[0]?.imagen_url);
+            console.log('Ruta de la imagen a eliminar:', imagePath);
+            
+            // Eliminar la imagen anterior
+            fs.unlinkSync(imagePath); // Eliminar archivo anterior si no es el mismo
+        }
+
+        // Si no hay una imagen nueva, mantenemos la imagen anterior
+        const imagen = imagen_url || productoActual[0]?.imagen_url;
+
+        // Realizamos la actualización del producto
         const [result] = await db.query(
             'UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, id_categoria = ?, cantidad_disponible = ?, imagen_url = ? WHERE id_producto = ?',
             [nombre, descripcion, precio, id_categoria, cantidad_disponible, imagen, id]
         );
 
-        // Si no se encuentra el producto, el número de filas afectadas será 0.
         if (result.affectedRows === 0) {
             return res.status(404).send({ mensaje: 'Producto no encontrado' });
         }
 
         res.status(200).send({ mensaje: 'Producto actualizado exitosamente' });
     } catch (error) {
-        res.status(500).send({ mensaje: 'Error al actualizar el producto', error });
+        console.error('Error al actualizar el producto:', error);
+        res.status(500).send({ mensaje: 'Error al actualizar el producto', error: error.message });
     }
 });
+
+
+  
 

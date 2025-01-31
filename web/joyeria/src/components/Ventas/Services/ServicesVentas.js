@@ -69,4 +69,13 @@ export const ActualizarVentas = async (id, NewVenta) => {
       return { success: false, error: err };
     }
   };
-  
+
+
+export const ObtenerProductos = async () => {
+try {
+    const res = await fetch("http://localhost:3000/productos");
+    const data = await res.json();
+    return data 
+} catch (error) {
+    console.error("Error al obtener los productos", error);
+}}; 

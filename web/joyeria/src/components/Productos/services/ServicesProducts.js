@@ -49,23 +49,26 @@ export const EliminarProductos = async (id_producto) => {
       alert("Hubo un error en la comunicación con el servidor.");
     }
 };
-  
+
 export const ActualizarProducto = async (id, formData) => {
   try {
     const response = await fetch(`http://localhost:3000/productos/${id}`, {
-      method: "PUT",
-      body: formData, // FormData para actualizar con imagen incluida
+      method: 'PUT',
+      body: formData,
     });
 
     if (!response.ok) {
-      throw new Error("Error al actualizar producto");
+      throw new Error('Error al actualizar el producto');
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log(data)
   } catch (error) {
-    console.error("Error al actualizar producto:", error);
-    throw error;
+    console.error('Error al actualizar el producto:', error);
+    alert('Hubo un error al actualizar el producto');
   }
 };
+
+
 
   

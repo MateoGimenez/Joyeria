@@ -51,9 +51,7 @@ export const Productos = () => {
   };
 
   const editarProducto = (id) => {
-    const productoAEditar = productos.find(
-      (producto) => producto.id_producto === id
-    );
+    const productoAEditar = productos.find((producto) => producto.id_producto === id);
 
     if (productoAEditar) {
       setProductoEditando(productoAEditar);
@@ -64,10 +62,38 @@ export const Productos = () => {
         precio: productoAEditar.precio,
         id_categoria: productoAEditar.id_categoria,
         cantidad_disponible: productoAEditar.cantidad_disponible,
-        imagen_url: null,
+        imagen_url: null
       });
       toggleModal();
     }
+  };
+
+  const ActulizarProductosEditado = async () => {
+    const formData = new FormData();
+    formData.append("id_producto", newProducto.id_producto);
+    formData.append("nombre", newProducto.nombre);
+    formData.append("descripcion", newProducto.descripcion || "");
+    formData.append("precio", Number(newProducto.precio));
+    formData.append("id_categoria", Number(newProducto.id_categoria));
+    formData.append("cantidad_disponible", Number(newProducto.cantidad_disponible));
+    
+    // Verifica si se pasó una nueva imagen o si solo hay una URL para actualizar
+    if (newProducto.imagen_url && newProducto.imagen_url instanceof File) {
+        formData.append("image", newProducto.imagen_url);
+    } else if (newProducto.imagen_url) {
+        formData.append("imagen_url", newProducto.imagen_url);
+    }
+    
+
+    // 🔍 Imprime los valores correctamente
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ": " + pair[1]);
+    }
+
+    await ActualizarProducto(newProducto.id_producto, formData); // Usar newProducto
+    const data = await ObtenerProductos();
+    setIsModalOpen(false);
+    setProductos(data);
   };
 
   const toggleModal = () => {
@@ -199,6 +225,8 @@ export const Productos = () => {
         newProducto={newProducto}
         ObtenerDatosProducto={ObtenerDatosProducto}
         EnviarForm={EnviarForm}
+        productoEditando={productoEditando}
+        ActulizarProductosEditado={ActulizarProductosEditado}
       />
     </div>
   );

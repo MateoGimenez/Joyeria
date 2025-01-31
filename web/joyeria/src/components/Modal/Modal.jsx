@@ -2,7 +2,7 @@ import { useCategorias } from "../hooks/useCategorias";
 import { NumericFormat } from "react-number-format";
 import './ModalProductos.css'
 
-export const Modal = ({ isModalOpen, toggleModal, newProducto, ObtenerDatosProducto, EnviarForm }) => {
+export const Modal = ({ isModalOpen, toggleModal, newProducto, ObtenerDatosProducto, EnviarForm ,productoEditando , ActulizarProductosEditado}) => {
 
   const categoriasList = useCategorias()
 
@@ -82,7 +82,7 @@ export const Modal = ({ isModalOpen, toggleModal, newProducto, ObtenerDatosProdu
           />
 
 
-          <button type="button" onClick={EnviarForm}>Guardar</button>
+          <button type="button" onClick={productoEditando? ActulizarProductosEditado : EnviarForm}>{productoEditando ? 'actualizar' : 'Guardar'}</button>
           <button type="button" onClick={toggleModal}>Cerrar</button>
         </form>
       </div>

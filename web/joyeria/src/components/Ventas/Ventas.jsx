@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { CategoriaSelect } from "../CategoriasSelect";
 import { useCategorias } from "../hooks/useCategorias";
 import { ObtenerVentas, AgregarVentas ,BorrarVenta , ActualizarVentas} from "./Services/ServicesVentas";
+import { ObtenerProductos } from "./Services/ServicesVentas";
 import { validarNuevaVenta } from "./validacionesVentas";
 import "./Ventas.css";
 
 export const Ventas = () => {
   const [ventas, setVentas] = useState([]);
+  const [productos , setProductos] = useState([])
   const [busqueda, setBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
   const categoriasList = useCategorias();
@@ -21,6 +23,9 @@ export const Ventas = () => {
     const fetchObtenerVentas = async () => {
       const data = await ObtenerVentas();
       setVentas(data);
+
+      const info = await ObtenerProductos()
+      setProductos(info)
     };
     fetchObtenerVentas();
   }, []);
@@ -42,29 +47,32 @@ export const Ventas = () => {
 
   const ObtenerDatosVentas = (e) => {
     const { name, value } = e.target;
-
+  
     setNewVenta((prev) => {
       const updatedVenta = {
         ...prev,
         [name]: name === "id_producto" || name === "cantidad_vendida" ? Number(value) : value,
       };
-
+  
       // Actualizar el precio si se cambia el id_producto
       if (name === "id_producto") {
-        const productoSeleccionado = ventas.find(
+        const productoSeleccionado = productos.find(
           (producto) => producto.id_producto === Number(value)
         );
         if (productoSeleccionado) {
-          updatedVenta.precio_unitario = Number(productoSeleccionado.precio_unitario); // Asignar precio como número
+          updatedVenta.precio_unitario = Number(productoSeleccionado.precio); // Usar productos en lugar de ventas
+        } else {
+          updatedVenta.precio_unitario = 0; // Si el producto no existe, dejar el precio en 0
         }
       }
-
       return updatedVenta;
     });
+
   };
+  
 
   const NuevaVenta = async () => {
-    if (!validarNuevaVenta(NewVenta, ventas)) return;
+    if (!validarNuevaVenta(NewVenta, productos)) return;
     console.log(NewVenta);
     try {
       await AgregarVentas(NewVenta);

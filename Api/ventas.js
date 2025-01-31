@@ -44,43 +44,60 @@ VentasRouter.post('/', [validarVenta , verificarValidaciones] , async(req , res 
 })
 
 
-VentasRouter.delete('/:id',[validarID , verificarValidaciones] ,async(req,res) => {
-    try{
-        const { id } =  req.params
+VentasRouter.delete('/:id', [validarID, verificarValidaciones], async (req, res) => {
+    try {
+        const { id } = req.params;
 
-        const [ ventas ] = await db.query('SELECT * FROM detalle_ventas d JOIN productos p ON d.id_producto = p.id_producto  ')
+        const [ventas] = await db.query('SELECT id_producto, cantidad_vendida FROM detalle_ventas WHERE id_detalle_venta = ?', [id]);
 
-        console.log(ventas.cantidad_disponible)
-
-        await db.query('DELETE FROM detalle_ventas WHERE id_detalle_venta = ? ', [ id ] )
-
-
-
-        res.status(200).send({mensaje : 'Venta borrada con exito'})
-
-    }catch(err){
-        res.status(500).send({mensaje : 'Error al borrar una venta' , err})
-    }
-})
-
-VentasRouter.put('/:id' , [validarID , validarVenta ,verificarValidaciones] , async(req,res) => {
-    try{
-        const { id } = req.params
-        const {id_producto , cantidad_vendida , precio_unitario} = req.body 
-
-        const [producto] = await db.query('SELECT cantidad_disponible FROM productos where id_producto = ?' , [id_producto])
-        if(producto.length === 0){
-            res.status(404),send({mensaje : 'No se encontro la cantidad del producto'})
+        if (ventas.length === 0) {
+            return res.status(404).send({ mensaje: 'Venta no encontrada' });
         }
-        const cantidad_disponible = producto[0].cantidad_disponible
-        const NuevaCantidad = cantidad_disponible - cantidad_vendida
 
-        const fecha = new Date()
-        const [ActualizarStock] = await db.query('UPDATE productos SET cantidad_disponible = ? where id_producto = ?' , [NuevaCantidad , id_producto])
-        const [ActualizarVenta] = await db.query('UPDATE detalle_ventas SET cantidad_vendida = ? , precio_unitario = ? , fecha_venta = ? WHERE id_detalle_venta = ? ' , [cantidad_vendida, precio_unitario , fecha ,id])
+        const { id_producto, cantidad_vendida } = ventas[0];
 
-        res.status(200).send({mensaje : 'Producto actualizado' , ActualizarVenta , ActualizarStock})
-    }catch(err){
-        res.status(500),send({mensaje : 'Eror en el back' , err})
+        // Devolver stock antes de eliminar
+        await db.query('UPDATE productos SET cantidad_disponible = cantidad_disponible + ? WHERE id_producto = ?', [cantidad_vendida, id_producto]);
+
+        // Eliminar la venta
+        await db.query('DELETE FROM detalle_ventas WHERE id_detalle_venta = ?', [id]);
+
+        res.status(200).send({ mensaje: 'Venta eliminada y stock actualizado' });
+    } catch (err) {
+        res.status(500).send({ mensaje: 'Error al borrar una venta', err });
     }
-})
+});
+
+
+VentasRouter.put('/:id', [validarID, validarVenta, verificarValidaciones], async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { id_producto, cantidad_vendida, precio_unitario } = req.body;
+
+        // Obtener la venta original
+        const [ventaOriginal] = await db.query('SELECT id_producto, cantidad_vendida FROM detalle_ventas WHERE id_detalle_venta = ?', [id]);
+        if (ventaOriginal.length === 0) {
+            return res.status(404).send({ mensaje: 'Venta no encontrada' });
+        }
+
+        const { cantidad_vendida: cantidadAnterior, id_producto: idAnterior } = ventaOriginal[0];
+
+        // Si se cambió el producto, ajustar stock en ambos productos
+        if (id_producto !== idAnterior) {
+            await db.query('UPDATE productos SET cantidad_disponible = cantidad_disponible + ? WHERE id_producto = ?', [cantidadAnterior, idAnterior]);
+            await db.query('UPDATE productos SET cantidad_disponible = cantidad_disponible - ? WHERE id_producto = ?', [cantidad_vendida, id_producto]);
+        } else {
+            // Ajustar stock en el mismo producto
+            const diferencia = cantidadAnterior - cantidad_vendida;
+            await db.query('UPDATE productos SET cantidad_disponible = cantidad_disponible + ? WHERE id_producto = ?', [diferencia, id_producto]);
+        }
+
+        // Actualizar la venta
+        const fecha = new Date();
+        await db.query('UPDATE detalle_ventas SET cantidad_vendida = ?, precio_unitario = ?, fecha_venta = ? WHERE id_detalle_venta = ?', [cantidad_vendida, precio_unitario, fecha, id]);
+
+        res.status(200).send({ mensaje: 'Venta actualizada y stock corregido' });
+    } catch (err) {
+        res.status(500).send({ mensaje: 'Error en el backend', err });
+    }
+});
