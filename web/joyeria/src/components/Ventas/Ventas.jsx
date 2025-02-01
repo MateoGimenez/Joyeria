@@ -175,7 +175,7 @@ export const Ventas = () => {
                   <td className="tabla_celda">{venta.id_producto}</td>
                   <td className="tabla_celda">{venta.nombre}</td>
                   <td className="tabla_celda">{venta.cantidad_vendida}</td>
-                  <td className="tabla_celda">${venta.precio}</td>
+                  <td className="tabla_celda">${venta.precio_unitario}</td>
                   <td className="tabla_celda">{venta.fecha_venta}</td>
                   <td className="tabla_celda">{venta.precio * venta.cantidad_vendida}</td>
                   <td className="tabla_celda">

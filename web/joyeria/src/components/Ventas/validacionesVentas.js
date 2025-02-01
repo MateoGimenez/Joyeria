@@ -18,8 +18,15 @@ export const validarNuevaVenta = (newVenta , listaProductos) => {
 
     if(!newVenta.precio_unitario || newVenta.precio_unitario <= 0){
         alert('El producto no tiene un precio establecido')
+        return false
     }
 
+    const stock = listaProductos.find((producto) => producto.id_producto === newVenta.id_producto)
+    const nuevaCantidad  = stock.cantidad_disponible - newVenta.cantidad_vendida
+    if(nuevaCantidad < 0){
+        alert('No se puede vender mas cantidad del stock disponible')
+        return false
+    }
     
     return true
 }

@@ -77,7 +77,6 @@ export const Productos = () => {
     formData.append("id_categoria", Number(newProducto.id_categoria));
     formData.append("cantidad_disponible", Number(newProducto.cantidad_disponible));
     
-    // Verifica si se pasó una nueva imagen o si solo hay una URL para actualizar
     if (newProducto.imagen_url && newProducto.imagen_url instanceof File) {
         formData.append("image", newProducto.imagen_url);
     } else if (newProducto.imagen_url) {
@@ -85,7 +84,6 @@ export const Productos = () => {
     }
     
 
-    // 🔍 Imprime los valores correctamente
     for (let pair of formData.entries()) {
         console.log(pair[0] + ": " + pair[1]);
     }

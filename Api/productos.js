@@ -119,6 +119,9 @@ ProductosRouter.put('/:id', upload.single('image'), [validarProducto, validarID,
     const { id } = req.params;
     const imagen_url = req.file ? req.file.path : null;
     console.log('Imagen recibida:', req.file); 
+    console.log('Datos recibidos en el body:', req.body);
+    console.log('ID recibido en params:', id);
+
     try {
         const [productoActual] = await db.query('SELECT imagen_url FROM productos WHERE id_producto = ?', [id]);
 

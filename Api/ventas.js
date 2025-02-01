@@ -30,6 +30,9 @@ VentasRouter.post('/', [validarVenta , verificarValidaciones] , async(req , res 
         const cantidad_disponible = productos[0].cantidad_disponible
 
         const NuevaCantidad = cantidad_disponible - cantidad_vendida
+        if(NuevaCantidad < 0 ){
+            return res.status(404).send({mensaje : 'No se puede vender mas del stock disponible'})
+        }
 
         const [NuevaVenta] = await db.query('INSERT INTO detalle_ventas (id_producto , cantidad_vendida , precio_unitario , fecha_venta) VALUES(? , ? , ? , ?)',
             [id_producto , cantidad_vendida , precio_unitario , fecha]
